@@ -363,7 +363,7 @@ export default function TourGuideExamPractice() {
     <div className="min-h-screen bg-gray-50 text-gray-900 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold">Turist Rehberliği Deneme Sınavı (100 Soru)</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Turist Rehberliği Deneme Sınavı (100 Soru) TEST</h1>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowTests(v => !v)} className="px-3 py-2 rounded-2xl bg-white shadow">{showTests ? 'Test Panelini Kapat' : 'Test Paneli'}</button>
             <button onClick={restart} className="px-3 py-2 rounded-2xl bg-white shadow">Sıfırla</button>
