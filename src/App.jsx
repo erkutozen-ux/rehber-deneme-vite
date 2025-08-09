@@ -321,8 +321,8 @@ export default function TourGuideExamPractice() {
 
   // --- Basit kendi kendine testler (test cases) ---
   const testResults = React.useMemo(() => {
-    const res = [] as { name: string; pass: boolean; info?: string }[];
-    const ids = new Set<number>();
+    const res = [];
+    const ids = new Set();
 
     // 1) Soru sayısı 100
     res.push({ name: "Toplam soru sayısı 100", pass: questions.length === 100, info: `bulunan: ${questions.length}` });
@@ -336,7 +336,7 @@ export default function TourGuideExamPractice() {
     res.push({ name: "Cevap indeksleri 0-4 aralığında", pass: wrongAnswers.length === 0, info: wrongAnswers.length ? `Hatalı id: ${wrongAnswers.join(", ")}` : undefined });
 
     // 4) ID benzersiz
-    let duplicateId: number | null = null;
+    let duplicateId = null;
     for (const q of questions) {
       if (ids.has(q.id)) { duplicateId = q.id; break; }
       ids.add(q.id);
@@ -346,6 +346,15 @@ export default function TourGuideExamPractice() {
     // 5) Konu başlığı boş değil
     const emptyTopics = questions.filter(q => !q.topic || !q.topic.trim()).map(q => q.id);
     res.push({ name: "Tüm sorularda konu (topic) mevcut", pass: emptyTopics.length === 0, info: emptyTopics.length ? `Eksik id: ${emptyTopics.join(", ")}` : undefined });
+
+    // Ek testler: ID aralığı ve zorunlu alanlar
+    const idArray = questions.map(q => q.id);
+    const minId = Math.min(...idArray);
+    const maxId = Math.max(...idArray);
+    res.push({ name: "ID aralığı 1–100", pass: minId === 1 && maxId === 100 && ids.size === questions.length, info: `min:${minId}, max:${maxId}` });
+
+    const missingTexts = questions.filter(q => !q.q || !q.expl).map(q => q.id);
+    res.push({ name: "Soru metni ve açıklama mevcut", pass: missingTexts.length === 0, info: missingTexts.length ? `Eksik id: ${missingTexts.join(", ")}` : undefined });
 
     return res;
   }, []);
@@ -425,13 +434,13 @@ export default function TourGuideExamPractice() {
 
             <h3 className="font-semibold mt-4 mb-2">Konu Kırılımı</h3>
             <div className="grid sm:grid-cols-2 gap-2">
-              {Object.entries((questions as any).reduce((acc: any, q: any, i: number) => { const key = q.topic; if (!acc[key]) acc[key] = { total: 0, correct: 0 }; acc[key].total += 1; if (answers[i]?.correct) acc[key].correct += 1; return acc; }, {})).map(([k, v]: any) => (
+              {Object.entries(questions.reduce((acc, q, i) => { const key = q.topic; if (!acc[key]) acc[key] = { total: 0, correct: 0 }; acc[key].total += 1; if (answers[i]?.correct) acc[key].correct += 1; return acc; }, {})).map(([k, v]) => (
                 <div key={k} className="border rounded-2xl p-3 flex justify-between items-center">
                   <div>
                     <div className="text-sm font-semibold">{k}</div>
-                    <div className="text-xs text-gray-500">{(v as any).correct}/{(v as any).total} doğru</div>
+                    <div className="text-xs text-gray-500">{v.correct}/{v.total} doğru</div>
                   </div>
-                  <div className="text-sm font-semibold">{Math.round(((v as any).correct / (v as any).total) * 100)}%</div>
+                  <div className="text-sm font-semibold">{Math.round((v.correct / v.total) * 100)}%</div>
                 </div>
               ))}
             </div>
@@ -441,7 +450,7 @@ export default function TourGuideExamPractice() {
               {questions.map((q, i) => (
                 <div key={q.id} className={`rounded-2xl p-3 border ${answers[i]?.correct? 'border-emerald-200 bg-emerald-50' : 'border-red-200 bg-red-50'}`}>
                   <div className="text-sm font-semibold mb-1">{i+1}. {q.q}</div>
-                  <div className="text-xs">Doğru: {String.fromCharCode(65 + q.answer)} · Senin: {answers[i]? String.fromCharCode(65 + (answers[i] as any).choice) : '-'} · {answers[i]?.correct? 'Doğru' : 'Yanlış'}</div>
+                  <div className="text-xs">Doğru: {String.fromCharCode(65 + q.answer)} · Senin: {answers[i]? String.fromCharCode(65 + answers[i].choice) : '-'} · {answers[i]?.correct? 'Doğru' : 'Yanlış'}</div>
                 </div>
               ))}
             </div>
